@@ -40,9 +40,9 @@ public class InputProcessor {
             JsonObject existingData = new Gson().fromJson(reader, JsonObject.class);
 
             // Kiểm tra xem tệp JSON có dữ liệu không
-            if (existingData != null && existingData.has("News")) {
+            if (existingData != null && existingData.has("Tin tức")) {
                 // Tạo mảng JSON từ dữ liệu hiện có
-                JsonArray jsonArray = existingData.getAsJsonArray("News");
+                JsonArray jsonArray = existingData.getAsJsonArray("Tin tức");
                 // Thêm dữ liệu mới vào mảng JSON
                 jsonArray.add(jsonObject);
             } else {
@@ -51,7 +51,7 @@ public class InputProcessor {
                 jsonArray.add(jsonObject);
                 // Tạo đối tượng JsonObject mới với mảng JSON
                 existingData = new JsonObject();
-                existingData.add("News", jsonArray);
+                existingData.add("Tin tức", jsonArray);
             }
 
             // Ghi dữ liệu mới vào tệp JSON

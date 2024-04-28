@@ -4,83 +4,74 @@
  */
 package thuThapDuLieu;
 
-import java.util.*;
-
 import com.google.gson.Gson;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.FileWriter;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-
-
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 /**
  *
  * @author ACER
  */
-
-//aggregates InputStrings class
-public class InputProcessor extends InputStrings{
-//    private Gson json = new Gson();
+public class InputProcessor {
     
-//    public void parseObjectToJson(InputStrings inputStrings) {
-//        inputStrings.getInputStrings();
-//        json.toJson(inputStrings);
-//    }
-//    
-//    public void initializeJsonArray() {
-//        // Tạo một đối tượng JSON chứa mảng rỗng
-//        jsonObject.put("News", jsonArray);
-//
-//        // Ghi JSON vào tệp
-//        try (FileWriter file = new FileWriter("project.json")) {
-//            file.write(jsonObject.toString());
-//            System.out.println("Successfully wrote JSON to file.");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-    
-    public void addJsonObjectToArray() {
-        this.getInputStrings();
-        // Đọc nội dung tệp JSON đã có
-        JsonObject jsonObject = null;
-        try {
-            JsonParser parser = new JsonParser();
-            JsonElement jsonElement = parser.parse(new FileReader("D:\\Long\\Test\\src\\main\\java\\thuThapDuLieu\\project.json"));
-            jsonObject = jsonElement.getAsJsonObject();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    public void saveJsonObjectToJsonFile(InputData inputData) {
+        String filename = "Data/project.json";
 
-        // Chuyển đổi đối tượng Java thành JSON
-        Gson gson = new Gson();
-        JsonElement personJson = gson.toJsonTree(this);
+        // Tạo đối tượng JsonObject từ đối tượng inputData
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("Link bài viết", inputData.getLink());
+        jsonObject.addProperty("Website", inputData.getWebsite());
+        jsonObject.addProperty("Loại bài viết", inputData.getPostType());
+        jsonObject.addProperty("Tóm tắt bài viết", inputData.getSummary());
+        jsonObject.addProperty("Tiêu đề bài viết", inputData.getTitle());
+        jsonObject.addProperty("Nội dung chi tiết bài viết", inputData.getContent());
+        jsonObject.addProperty("Ngày tạo", inputData.getDate());
+        jsonObject.addProperty("Hashtag", inputData.getHashtag());
+        jsonObject.addProperty("Tên tác giả nếu có", inputData.getAuthor());
+        jsonObject.addProperty("Chuyên mục mà bài viết thuộc về", inputData.getCategory());
 
-        // Thêm đối tượng JSON vào mảng JSON đã có
-        JsonArray jsonArray;
-        if (jsonObject.has("News")) {
-            jsonArray = jsonObject.getAsJsonArray("News");
-        } else {
-            jsonArray = new JsonArray();
-        }
-        jsonArray.add(personJson);
-        jsonObject.add("News", jsonArray);
+        // Đọc và cập nhật dữ liệu trong tệp JSON
+        try (FileReader reader = new FileReader(filename)) {
+            // Đọc dữ liệu từ tệp JSON hiện có nếu có
+            JsonObject existingData = new Gson().fromJson(reader, JsonObject.class);
 
-        // Lưu nội dung mới vào tệp JSON
-        try (FileWriter writer = new FileWriter("D:\\Long\\Test\\src\\main\\java\\thuThapDuLieu\\project.json")) {
-            gson.toJson(jsonObject, writer);
+            // Kiểm tra xem tệp JSON có dữ liệu không
+            if (existingData != null && existingData.has("News")) {
+                // Tạo mảng JSON từ dữ liệu hiện có
+                JsonArray jsonArray = existingData.getAsJsonArray("News");
+                // Thêm dữ liệu mới vào mảng JSON
+                jsonArray.add(jsonObject);
+            } else {
+                // Tạo một mảng JSON mới và thêm dữ liệu mới vào đó
+                JsonArray jsonArray = new JsonArray();
+                jsonArray.add(jsonObject);
+                // Tạo đối tượng JsonObject mới với mảng JSON
+                existingData = new JsonObject();
+                existingData.add("News", jsonArray);
+            }
+
+            // Ghi dữ liệu mới vào tệp JSON
+            try (FileWriter writer = new FileWriter(filename)) {
+                Gson gson = new Gson();
+                gson.toJson(existingData, writer);
+                System.out.println("Data saved to project.json successfully.");
+            } catch (IOException e) {
+                System.err.println("Error writing to file: " + e.getMessage());
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error reading file: " + e.getMessage());
         }
     }
-    
+
     public static void main(String args[]) {
-        InputProcessor i = new InputProcessor();
-        i.addJsonObjectToArray();
+        InputData inputData = new InputData();
+        // Set giá trị cho inputData từ đối tượng đã có
+        inputData.getInputData();
+        InputProcessor inputProcessor = new InputProcessor();
+        inputProcessor.saveJsonObjectToJsonFile(inputData);
     }
 }
